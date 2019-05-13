@@ -10,12 +10,7 @@ import re
 from tkinter import filedialog
 from tkinter import *
 
-
-
-#strip punctuation from titles, no longer necessary with new naming convention
-def strip_punctuation(s):
-    return ''.join(c for c in s if c not in string.punctuation)
-
+#remove empty lines from xml-sourced text
 def stripEmptyLines(text):
     return os.linesep.join([s for s in text.splitlines() if s])
 
@@ -31,14 +26,8 @@ def parseXML(xmlfile):
   
     # create element tree object 
     tree = ET.parse(xmlfile) 
-  
-    # get root element 
     root = tree.getroot() 
- 
     sceneItems = []
-
-    # presTitle = (root.find('./lesson/lessonTitle')).text
-    # presTitle = strip_punctuation(presTitle)
 
     for item in root.findall('./lesson/scenes/scene'): 
         sceneItems.append(item)     
@@ -48,42 +37,28 @@ def createPresentation(folder):
     templatePath = 'MPA2019Template.pptx'
     prs = Presentation(templatePath)
     slide_layout = prs.slide_layouts[1]
-
     xmlpath = folder + '/module.xml'
-
     xmlScenes = parseXML(xmlpath)
-
-    left = Inches(0.5)
-    height = Inches(2)
-    top = Inches(0.4)
     slideCount = 0
 
     for scene in xmlScenes:
-        
         if slideCount == 0:
             slide_layout = prs.slide_layouts[0]
         else:
             slide_layout = prs.slide_layouts[1]
-
         slideCount += 1
 
         titleText = scene.find('sceneTitle').text
         contentText = html2text.html2text(scene.find('content').text)
         contentText = contentText.replace('* ', '')
         contentText = stripEmptyLines(contentText)
-        
-
 
         #create slide
         slide = prs.slides.add_slide(slide_layout)
         shapes = slide.shapes
-
-       
         title_shape = shapes.title
         body_shape = shapes.placeholders[1]
-
         title_shape.text = titleText
-
         tf = body_shape.text_frame
         tf.text = contentText
        
@@ -113,11 +88,9 @@ def createPresentation(folder):
     print(folder + "exported " + str(slideCount) + " slides")
      
 def main():
-
 	root = Tk()
 	root.withdraw()
 	folder_selected = filedialog.askdirectory() 
-
 	for entry in os.scandir(folder_selected):
 		if entry.is_dir():
 			relpath = os.path.relpath(entry.path)
@@ -126,10 +99,7 @@ def main():
 				print("checked!: " + relpath)
 				createPresentation(relpath)
 			else:
-				print("no xml modile.xml found in " + relpath)
-   
-
-
+				print("no xml module.xml found in " + relpath)
       
 if __name__ == "__main__": 
   
