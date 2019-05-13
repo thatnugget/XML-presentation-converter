@@ -7,6 +7,10 @@ from pptx.util import Inches
 import html2text
 import datetime
 import re
+from tkinter import filedialog
+from tkinter import *
+
+
 
 #strip punctuation from titles, no longer necessary with new naming convention
 def strip_punctuation(s):
@@ -108,15 +112,21 @@ def createPresentation(folder):
     prs.save(folder +'.pptx')
     print(folder + "exported " + str(slideCount) + " slides")
      
-def main(): 
-    
-    for entry in os.scandir( os.getcwd()):
-        if entry.is_dir():
-            relpath = os.path.relpath(entry.path)
-            print(relpath)
-            if checkforxml(relpath):
-                print("checked!: " + relpath)
-                createPresentation(relpath)
+def main():
+
+	root = Tk()
+	root.withdraw()
+	folder_selected = filedialog.askdirectory() 
+
+	for entry in os.scandir(folder_selected):
+		if entry.is_dir():
+			relpath = os.path.relpath(entry.path)
+			print(relpath)
+			if checkforxml(relpath):
+				print("checked!: " + relpath)
+				createPresentation(relpath)
+			else:
+				print("no xml modile.xml found in " + relpath)
    
 
 
